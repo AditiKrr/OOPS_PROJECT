@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - Live Mart</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Dashboard Navigation -->
+    <nav class="dashboard-nav">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Live Mart</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">Welcome, John Doe</span>
+                    <div class="user-menu">
+                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=2563eb&color=fff" alt="User" class="user-avatar">
+                        <div class="dropdown-menu">
+                            <a href="#profile"><i class="fas fa-user"></i> Profile</a>
+                            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" onclick="handleDashboardLogout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active" data-section="browse">
+                    <i class="fas fa-store"></i>
+                    <span>Browse Items</span>
+                </li>
+                <li data-section="cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>My Cart</span>
+                    <span class="badge" id="cartCount">0</span>
+                </li>
+                <li data-section="orders">
+                    <i class="fas fa-box"></i>
+                    <span>My Orders</span>
+                </li>
+                <li data-section="track">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Track Order</span>
+                </li>
+                <li data-section="feedback">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback & Queries</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Browse Items Section -->
+            <section id="browse" class="dashboard-section active">
+                <div class="section-header">
+                    <h1>Browse Items</h1>
+                    <p>Discover products from our verified retailers and wholesalers</p>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search for products...">
+                    </div>
+                    <div class="filters">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="home">Home & Garden</option>
+                            <option value="books">Books</option>
+                        </select>
+                        <select id="priceFilter" class="filter-select">
+                            <option value="">All Prices</option>
+                            <option value="0-50">$0 - $50</option>
+                            <option value="50-100">$50 - $100</option>
+                            <option value="100-500">$100 - $500</option>
+                            <option value="500+">$500+</option>
+                        </select>
+                        <select id="availabilityFilter" class="filter-select">
+                            <option value="">All Availability</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="pre-order">Pre-Order</option>
+                        </select>
+                        <button class="btn-filter" id="sortBtn">
+                            <i class="fas fa-sort"></i> Sort by Price
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products-grid" id="productsGrid">
+                    <!-- Products will be loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Cart Section -->
+            <section id="cart" class="dashboard-section">
+                <div class="section-header">
+                    <h1>My Shopping Cart</h1>
+                    <p>Review your items before checkout</p>
+                </div>
+
+                <div class="cart-container">
+                    <div class="cart-items" id="cartItems">
+                        <!-- Cart items will be loaded dynamically -->
+                    </div>
+                    <div class="cart-summary">
+                        <h3>Order Summary</h3>
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">₹0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span id="shipping">₹50</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (GST 18%):</span>
+                            <span id="tax">₹0</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="total">₹0</span>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="checkoutBtn">
+                            <i class="fas fa-credit-card"></i> Proceed to Checkout
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="orders" class="dashboard-section">
+                <div class="section-header">
+                    <h1>My Orders</h1>
+                    <p>View and manage your order history</p>
+                </div>
+
+                <div class="orders-filter">
+                    <button class="filter-btn active" data-status="all">All Orders</button>
+                    <button class="filter-btn" data-status="pending">Pending</button>
+                    <button class="filter-btn" data-status="processing">Processing</button>
+                    <button class="filter-btn" data-status="shipped">Shipped</button>
+                    <button class="filter-btn" data-status="delivered">Delivered</button>
+                </div>
+
+                <div class="orders-list" id="ordersList">
+                    <!-- Orders will be loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Track Order Section -->
+            <section id="track" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Track Your Order</h1>
+                    <p>Real-time tracking of your deliveries</p>
+                </div>
+
+                <div class="track-input-container">
+                    <input type="text" id="trackingInput" placeholder="Enter your order ID or tracking number">
+                    <button class="btn btn-primary" id="trackBtn">
+                        <i class="fas fa-search"></i> Track Order
+                    </button>
+                </div>
+
+                <div class="tracking-result" id="trackingResult">
+                    <!-- Tracking information will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Feedback Section -->
+            <section id="feedback" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Feedback & Queries</h1>
+                    <p>Share your experience or ask us anything</p>
+                </div>
+
+                <div class="feedback-container">
+                    <div class="feedback-form">
+                        <form id="feedbackForm">
+                            <div class="form-group">
+                                <label for="feedbackType">Type</label>
+                                <select id="feedbackType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="feedback">Product Feedback</option>
+                                    <option value="complaint">Complaint</option>
+                                    <option value="query">General Query</option>
+                                    <option value="support">Technical Support</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="feedbackOrder">Order ID (Optional)</label>
+                                <input type="text" id="feedbackOrder" placeholder="Enter order ID if applicable">
+                            </div>
+                            <div class="form-group">
+                                <label for="feedbackSubject">Subject</label>
+                                <input type="text" id="feedbackSubject" required placeholder="Brief description">
+                            </div>
+                            <div class="form-group">
+                                <label for="feedbackMessage">Message</label>
+                                <textarea id="feedbackMessage" rows="6" required placeholder="Describe your feedback or query in detail..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Rating (Optional)</label>
+                                <div class="rating-input">
+                                    <i class="far fa-star" data-rating="1"></i>
+                                    <i class="far fa-star" data-rating="2"></i>
+                                    <i class="far fa-star" data-rating="3"></i>
+                                    <i class="far fa-star" data-rating="4"></i>
+                                    <i class="far fa-star" data-rating="5"></i>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Feedback
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="feedback-history">
+                        <h3>Your Previous Queries</h3>
+                        <div id="feedbackHistory">
+                            <!-- Feedback history will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body" id="modalBody">
+                <!-- Item details will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body">
+                <h2>Checkout</h2>
+                <form id="checkoutForm">
+                    <h3>Shipping Address</h3>
+                    <div class="form-group">
+                        <input type="text" placeholder="Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" placeholder="Street Address" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" placeholder="City" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" placeholder="ZIP Code" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" placeholder="Phone Number" required>
+                    </div>
+
+                    <h3>Payment Method</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="upi" checked>
+                            <span><i class="fas fa-mobile-alt"></i> UPI (GPay/PhonePe/Paytm)</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="card">
+                            <span><i class="fas fa-credit-card"></i> Credit/Debit Card</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="netbanking">
+                            <span><i class="fas fa-university"></i> Net Banking</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="wallet">
+                            <span><i class="fas fa-wallet"></i> Paytm/PhonePe Wallet</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="cod">
+                            <span><i class="fas fa-money-bill-wave"></i> Cash on Delivery</span>
+                        </label>
+                    </div>
+
+                    <div id="upiDetails" class="card-details">
+                        <div class="form-group">
+                            <input type="text" placeholder="Enter UPI ID (e.g., yourname@paytm)">
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem;">
+                            <p style="color: var(--text-light); font-size: 0.9rem;">Or scan QR code with any UPI app</p>
+                        </div>
+                    </div>
+
+                    <div id="cardDetails" class="card-details" style="display: none;">
+                        <div class="form-group">
+                            <input type="text" placeholder="Card Number" maxlength="19">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" placeholder="CVV" maxlength="3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-lock"></i> Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/customer-dashboard.js"></script>
+</body>
+</html>

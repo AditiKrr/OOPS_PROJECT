@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesaler Dashboard - Live Mart</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Dashboard Navigation -->
+    <nav class="dashboard-nav">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Live Mart</span>
+                    <span class="role-badge wholesaler">Wholesaler</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">Welcome, Robert Brown</span>
+                    <div class="user-menu">
+                        <img src="https://ui-avatars.com/api/?name=Robert+Brown&background=f59e0b&color=fff" alt="User" class="user-avatar">
+                        <div class="dropdown-menu">
+                            <a href="#profile"><i class="fas fa-user"></i> Profile</a>
+                            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" onclick="handleDashboardLogout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active" data-section="overview">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Overview</span>
+                </li>
+                <li data-section="inventory">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Manage Inventory</span>
+                </li>
+                <li data-section="pricing">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Pricing</span>
+                </li>
+                <li data-section="orders">
+                    <i class="fas fa-receipt"></i>
+                    <span>Retailer Orders</span>
+                </li>
+                <li data-section="retailers">
+                    <i class="fas fa-store"></i>
+                    <span>Retailers</span>
+                </li>
+                <li data-section="history">
+                    <i class="fas fa-history"></i>
+                    <span>Purchase History</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section active">
+                <div class="section-header">
+                    <h1>Wholesaler Dashboard</h1>
+                    <p>Comprehensive overview of your wholesale operations</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>234</h3>
+                            <p>Total Orders</p>
+                            <span class="stat-change positive">+18% this month</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>₹37,55,827</h3>
+                            <p>Revenue</p>
+                            <span class="stat-change positive">+15% this month</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,245</h3>
+                            <p>Products</p>
+                            <span class="stat-change">152 need restock</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-store-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>67</h3>
+                            <p>Active Retailers</p>
+                            <span class="stat-change positive">+3 this month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Monthly Revenue</h3>
+                        <div class="chart-placeholder">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Order Status Distribution</h3>
+                        <div class="chart-placeholder">
+                            <canvas id="orderStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list" id="activityList">
+                        <!-- Recent activities will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inventory Management Section -->
+            <section id="inventory" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Inventory Management</h1>
+                    <p>Manage products available for retailers</p>
+                    <button class="btn btn-primary" id="addProductBtn">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </button>
+                </div>
+
+                <div class="inventory-controls">
+                    <input type="text" id="productSearch" placeholder="Search products...">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="home">Home & Garden</option>
+                        <option value="industrial">Industrial</option>
+                    </select>
+                    <select id="stockFilter" class="filter-select">
+                        <option value="">All Stock Levels</option>
+                        <option value="high">High Stock (>100)</option>
+                        <option value="medium">Medium Stock (50-100)</option>
+                        <option value="low">Low Stock (<50)</option>
+                        <option value="out">Out of Stock</option>
+                    </select>
+                    <button class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+
+                <div class="inventory-table-container">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Stock</th>
+                                <th>Unit Price</th>
+                                <th>Min Order Qty</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryBody">
+                            <!-- Inventory items will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Pricing Section -->
+            <section id="pricing" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Pricing Management</h1>
+                    <p>Set wholesale prices and bulk discounts</p>
+                </div>
+
+                <div class="pricing-options">
+                    <button class="btn btn-secondary" id="tierPricingBtn">
+                        <i class="fas fa-layer-group"></i> Tier Pricing
+                    </button>
+                    <button class="btn btn-secondary" id="bulkDiscountBtn">
+                        <i class="fas fa-percentage"></i> Bulk Discounts
+                    </button>
+                    <button class="btn btn-secondary" id="specialOffersBtn">
+                        <i class="fas fa-gift"></i> Special Offers
+                    </button>
+                </div>
+
+                <div class="pricing-table-container">
+                    <table class="pricing-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Base Price</th>
+                                <th>Tier 1 (10-50)</th>
+                                <th>Tier 2 (51-100)</th>
+                                <th>Tier 3 (100+)</th>
+                                <th>Active Discount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pricingBody">
+                            <!-- Pricing items will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Retailer Orders Section -->
+            <section id="orders" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Retailer Orders</h1>
+                    <p>Manage incoming orders from retailers</p>
+                </div>
+
+                <div class="orders-filters">
+                    <button class="filter-btn active" data-status="all">All Orders</button>
+                    <button class="filter-btn" data-status="pending">Pending</button>
+                    <button class="filter-btn" data-status="confirmed">Confirmed</button>
+                    <button class="filter-btn" data-status="processing">Processing</button>
+                    <button class="filter-btn" data-status="shipped">Shipped</button>
+                    <button class="filter-btn" data-status="delivered">Delivered</button>
+                </div>
+
+                <div class="orders-table-container">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Retailer</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Retailers Section -->
+            <section id="retailers" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Retailer Management</h1>
+                    <p>View and manage your retail partners</p>
+                </div>
+
+                <div class="retailers-search">
+                    <input type="text" id="retailerSearch" placeholder="Search retailers...">
+                    <select id="retailerStatus" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending Approval</option>
+                    </select>
+                </div>
+
+                <div class="retailers-grid" id="retailersGrid">
+                    <!-- Retailer cards will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Purchase History Section -->
+            <section id="history" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Purchase History</h1>
+                    <p>Complete record of all transactions</p>
+                </div>
+
+                <div class="history-filters">
+                    <input type="text" id="historySearch" placeholder="Search by order ID, retailer, or product...">
+                    <input type="date" id="dateFrom" placeholder="From Date">
+                    <input type="date" id="dateTo" placeholder="To Date">
+                    <button class="btn btn-primary" id="searchHistoryBtn">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button class="btn btn-secondary" id="exportHistoryBtn">
+                        <i class="fas fa-file-export"></i> Export
+                    </button>
+                </div>
+
+                <div class="history-summary">
+                    <div class="summary-card">
+                        <h4>Total Transactions</h4>
+                        <p class="summary-value">1,234</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Total Revenue</h4>
+                        <p class="summary-value">₹2,01,34,197</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Average Order Value</h4>
+                        <p class="summary-value">₹16,315</p>
+                    </div>
+                </div>
+
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Retailer</th>
+                                <th>Products</th>
+                                <th>Quantity</th>
+                                <th>Total Amount</th>
+                                <th>Payment Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <!-- History records will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content large">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body">
+                <h2 id="productModalTitle">Add New Product</h2>
+                <form id="productForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Product ID</label>
+                            <input type="text" id="productId" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="productCategory" required>
+                                <option value="">Select category...</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="groceries">Groceries</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="home">Home & Garden</option>
+                                <option value="industrial">Industrial</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity</label>
+                            <input type="number" id="productStock" required min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Unit Price</label>
+                            <input type="number" id="productPrice" required min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Order Quantity</label>
+                            <input type="number" id="productMinOrder" required min="1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="productDescription" rows="4"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelProductBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content large">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body">
+                <h2>Order Details</h2>
+                <div id="orderDetails">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/wholesaler-dashboard.js"></script>
+</body>
+</html>
