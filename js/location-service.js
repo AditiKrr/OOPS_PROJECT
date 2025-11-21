@@ -201,6 +201,29 @@ class LocationService {
             `;
         }
     }
+    
+    // Update pincode in navbar
+    updateNavbarPincode() {
+        const pincodeElement = document.getElementById('navPincode');
+        if (!pincodeElement) return;
+        
+        const address = this.getStoredAddress();
+        
+        if (address && address.postcode) {
+            pincodeElement.textContent = address.postcode;
+            pincodeElement.style.display = 'inline-block';
+            pincodeElement.title = `${address.city}, ${address.state}`;
+        } else if (address && address.city) {
+            pincodeElement.textContent = address.city;
+            pincodeElement.style.display = 'inline-block';
+            pincodeElement.title = address.fullAddress;
+        } else {
+            pincodeElement.textContent = 'Set Location';
+            pincodeElement.style.display = 'inline-block';
+            pincodeElement.style.cursor = 'pointer';
+            pincodeElement.onclick = () => this.requestLocationPermission().then(() => this.updateNavbarPincode());
+        }
+    }
 }
 
 // Create global instance
@@ -210,6 +233,9 @@ window.locationService = new LocationService();
 document.addEventListener('DOMContentLoaded', () => {
     const stored = locationService.getStoredLocation();
     
+    // Update navbar pincode immediately if location exists
+    locationService.updateNavbarPincode();
+    
     if (!stored) {
         // Show location permission prompt after 2 seconds
         setTimeout(() => {
@@ -217,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 locationService.requestLocationPermission().then(result => {
                     if (result.success) {
                         console.log('✅ Location enabled:', result.address.city);
+                        locationService.updateNavbarPincode();
                         // Reload any location-dependent UI
                         window.dispatchEvent(new Event('locationUpdated'));
                     } else {

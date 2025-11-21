@@ -17,6 +17,7 @@
                 <div class="logo">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Live Mart</span>
+                    <span id="navPincode" class="pincode-badge">Loading...</span>
                 </div>
                 <div class="user-info">
                     <span class="user-name">Welcome, John Doe</span>
@@ -87,16 +88,28 @@
                         </select>
                         <select id="priceFilter" class="filter-select">
                             <option value="">All Prices</option>
-                            <option value="0-50">$0 - $50</option>
-                            <option value="50-100">$50 - $100</option>
-                            <option value="100-500">$100 - $500</option>
-                            <option value="500+">$500+</option>
+                            <option value="0-1000">₹0 - ₹1,000</option>
+                            <option value="1000-3000">₹1,000 - ₹3,000</option>
+                            <option value="3000-7000">₹3,000 - ₹7,000</option>
+                            <option value="7000+">₹7,000+</option>
+                        </select>
+                        <select id="distanceFilter" class="filter-select">
+                            <option value="">All Distances</option>
+                            <option value="0-5">Within 5 km</option>
+                            <option value="5-10">5-10 km</option>
+                            <option value="10-20">10-20 km</option>
+                            <option value="20-50">20-50 km</option>
                         </select>
                         <select id="availabilityFilter" class="filter-select">
                             <option value="">All Availability</option>
                             <option value="in-stock">In Stock</option>
                             <option value="low-stock">Low Stock</option>
-                            <option value="pre-order">Pre-Order</option>
+                        </select>
+                        <select id="stockFilter" class="filter-select">
+                            <option value="">All Stock</option>
+                            <option value="high">High Stock (50+)</option>
+                            <option value="medium">Medium Stock (10-50)</option>
+                            <option value="low">Low Stock (1-10)</option>
                         </select>
                         <button class="btn-filter" id="sortBtn">
                             <i class="fas fa-sort"></i> Sort by Price

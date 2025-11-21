@@ -178,6 +178,8 @@ function setupEventListeners() {
     document.getElementById('categoryFilter')?.addEventListener('change', filterProducts);
     document.getElementById('priceFilter')?.addEventListener('change', filterProducts);
     document.getElementById('availabilityFilter')?.addEventListener('change', filterProducts);
+    document.getElementById('distanceFilter')?.addEventListener('change', filterProducts);
+    document.getElementById('stockFilter')?.addEventListener('change', filterProducts);
     document.getElementById('sortBtn')?.addEventListener('click', sortProducts);
 
     // Checkout
@@ -296,22 +298,64 @@ function filterProducts() {
     const category = document.getElementById('categoryFilter')?.value || '';
     const priceRange = document.getElementById('priceFilter')?.value || '';
     const availability = document.getElementById('availabilityFilter')?.value || '';
+    const distanceRange = document.getElementById('distanceFilter')?.value || '';
+    const stockLevel = document.getElementById('stockFilter')?.value || '';
 
-    let filtered = products.filter(product => {
+    // Get location-filtered products first
+    const userLocation = window.locationService?.getStoredLocation();
+    let baseProducts = products;
+    
+    if (userLocation) {
+        baseProducts = products.filter(product => {
+            const distance = window.locationService.calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                product.shop.location.lat,
+                product.shop.location.lon
+            );
+            product.distance = parseFloat(distance);
+            return product.distance <= 50; // Max 50km
+        });
+    }
+
+    let filtered = baseProducts.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm);
         const matchesCategory = !category || product.category === category;
         const matchesAvailability = !availability || product.availability === availability;
         
+        // Price filter (in rupees)
         let matchesPrice = true;
         if (priceRange) {
-            if (priceRange === '0-50') matchesPrice = product.price < 50;
-            else if (priceRange === '50-100') matchesPrice = product.price >= 50 && product.price < 100;
-            else if (priceRange === '100-500') matchesPrice = product.price >= 100 && product.price < 500;
-            else if (priceRange === '500+') matchesPrice = product.price >= 500;
+            if (priceRange === '0-1000') matchesPrice = product.price < 1000;
+            else if (priceRange === '1000-3000') matchesPrice = product.price >= 1000 && product.price < 3000;
+            else if (priceRange === '3000-7000') matchesPrice = product.price >= 3000 && product.price < 7000;
+            else if (priceRange === '7000+') matchesPrice = product.price >= 7000;
+        }
+        
+        // Distance filter
+        let matchesDistance = true;
+        if (distanceRange && product.distance !== undefined) {
+            if (distanceRange === '0-5') matchesDistance = product.distance <= 5;
+            else if (distanceRange === '5-10') matchesDistance = product.distance > 5 && product.distance <= 10;
+            else if (distanceRange === '10-20') matchesDistance = product.distance > 10 && product.distance <= 20;
+            else if (distanceRange === '20-50') matchesDistance = product.distance > 20 && product.distance <= 50;
+        }
+        
+        // Stock quantity filter
+        let matchesStock = true;
+        if (stockLevel) {
+            if (stockLevel === 'high') matchesStock = product.stock >= 50;
+            else if (stockLevel === 'medium') matchesStock = product.stock >= 10 && product.stock < 50;
+            else if (stockLevel === 'low') matchesStock = product.stock > 0 && product.stock < 10;
         }
 
-        return matchesSearch && matchesCategory && matchesPrice && matchesAvailability;
+        return matchesSearch && matchesCategory && matchesPrice && matchesAvailability && matchesDistance && matchesStock;
     });
+
+    // Sort by distance if available
+    if (userLocation) {
+        filtered.sort((a, b) => a.distance - b.distance);
+    }
 
     loadProducts(filtered);
 }
