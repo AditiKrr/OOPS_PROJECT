@@ -23,16 +23,32 @@ window.handleDashboardLogout = async function() {
     }
 }
 
-// Sample Product Data
+// Sample Product Data with shop locations
 const products = [
-    { id: 1, name: 'Wireless Headphones', category: 'electronics', price: 6499, stock: 45, availability: 'in-stock', image: '🎧' },
-    { id: 2, name: 'Organic Coffee Beans', category: 'groceries', price: 1999, stock: 120, availability: 'in-stock', image: '☕' },
-    { id: 3, name: 'Cotton T-Shirt', category: 'clothing', price: 1599, stock: 8, availability: 'low-stock', image: '👕' },
-    { id: 4, name: 'Garden Hose', category: 'home', price: 2799, stock: 0, availability: 'out-of-stock', image: '🌿' },
-    { id: 5, name: 'Bluetooth Speaker', category: 'electronics', price: 4899, stock: 32, availability: 'in-stock', image: '🔊' },
-    { id: 6, name: 'Yoga Mat', category: 'home', price: 2399, stock: 15, availability: 'in-stock', image: '🧘' },
-    { id: 7, name: 'Laptop Stand', category: 'electronics', price: 3699, stock: 22, availability: 'in-stock', image: '💻' },
-    { id: 8, name: 'Green Tea Pack', category: 'groceries', price: 1299, stock: 88, availability: 'in-stock', image: '🍵' },
+    { id: 1, name: 'Wireless Headphones', category: 'electronics', price: 6499, stock: 45, availability: 'in-stock', image: '🎧', 
+      shop: { name: 'Tech Hub', location: { lat: 28.6139, lon: 77.2090, city: 'New Delhi', area: 'Connaught Place' } } },
+    { id: 2, name: 'Organic Coffee Beans', category: 'groceries', price: 1999, stock: 120, availability: 'in-stock', image: '☕',
+      shop: { name: 'Fresh Mart', location: { lat: 28.6200, lon: 77.2100, city: 'New Delhi', area: 'Rajiv Chowk' } } },
+    { id: 3, name: 'Cotton T-Shirt', category: 'clothing', price: 1599, stock: 8, availability: 'low-stock', image: '👕',
+      shop: { name: 'Fashion Store', location: { lat: 28.6100, lon: 77.2050, city: 'New Delhi', area: 'Janpath' } } },
+    { id: 4, name: 'Garden Hose', category: 'home', price: 2799, stock: 0, availability: 'out-of-stock', image: '🌿',
+      shop: { name: 'Home Depot', location: { lat: 28.6150, lon: 77.2120, city: 'New Delhi', area: 'Barakhamba Road' } } },
+    { id: 5, name: 'Bluetooth Speaker', category: 'electronics', price: 4899, stock: 32, availability: 'in-stock', image: '🔊',
+      shop: { name: 'Tech Hub', location: { lat: 28.6139, lon: 77.2090, city: 'New Delhi', area: 'Connaught Place' } } },
+    { id: 6, name: 'Yoga Mat', category: 'home', price: 2399, stock: 15, availability: 'in-stock', image: '🧘',
+      shop: { name: 'Fitness World', location: { lat: 28.5355, lon: 77.3910, city: 'Noida', area: 'Sector 18' } } },
+    { id: 7, name: 'Laptop Stand', category: 'electronics', price: 3699, stock: 22, availability: 'in-stock', image: '💻',
+      shop: { name: 'Office Supplies', location: { lat: 28.4595, lon: 77.0266, city: 'Gurugram', area: 'Cyber City' } } },
+    { id: 8, name: 'Green Tea Pack', category: 'groceries', price: 1299, stock: 88, availability: 'in-stock', image: '🍵',
+      shop: { name: 'Fresh Mart', location: { lat: 28.6200, lon: 77.2100, city: 'New Delhi', area: 'Rajiv Chowk' } } },
+    { id: 9, name: 'Running Shoes', category: 'clothing', price: 4999, stock: 25, availability: 'in-stock', image: '👟',
+      shop: { name: 'Sports Zone', location: { lat: 19.0760, lon: 72.8777, city: 'Mumbai', area: 'Andheri' } } },
+    { id: 10, name: 'Smart Watch', category: 'electronics', price: 12999, stock: 18, availability: 'in-stock', image: '⌚',
+      shop: { name: 'Gadget Store', location: { lat: 12.9716, lon: 77.5946, city: 'Bangalore', area: 'Indiranagar' } } },
+    { id: 11, name: 'Rice Bag 10kg', category: 'groceries', price: 899, stock: 200, availability: 'in-stock', image: '🌾',
+      shop: { name: 'Grocery Plus', location: { lat: 28.6139, lon: 77.2090, city: 'New Delhi', area: 'Connaught Place' } } },
+    { id: 12, name: 'LED Bulbs Pack', category: 'home', price: 599, stock: 150, availability: 'in-stock', image: '💡',
+      shop: { name: 'Home Essentials', location: { lat: 28.6100, lon: 77.2300, city: 'New Delhi', area: 'Lajpat Nagar' } } },
 ];
 
 // Sample Orders Data
@@ -47,12 +63,105 @@ let cart = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
+    loadLocationBasedProducts();
     updateCartCount();
     setupEventListeners();
     loadOrders();
     loadFeedbackHistory();
 });
+
+// Listen for location updates
+window.addEventListener('locationUpdated', () => {
+    loadLocationBasedProducts();
+});
+
+// Load products based on user location
+function loadLocationBasedProducts() {
+    const userLocation = window.locationService?.getStoredLocation();
+    const userAddress = window.locationService?.getStoredAddress();
+    
+    if (userLocation && userAddress) {
+        // Filter products within 50km radius
+        const maxDistance = 50; // km
+        const nearbyProducts = products.filter(product => {
+            const distance = window.locationService.calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                product.shop.location.lat,
+                product.shop.location.lon
+            );
+            product.distance = parseFloat(distance);
+            return product.distance <= maxDistance;
+        });
+        
+        // Sort by distance (nearest first)
+        nearbyProducts.sort((a, b) => a.distance - b.distance);
+        
+        // Update UI with location info
+        updateLocationDisplay(userAddress, nearbyProducts.length);
+        
+        // Load nearby products
+        loadProducts(nearbyProducts);
+        
+        console.log(`📍 Showing ${nearbyProducts.length} products near ${userAddress.city}`);
+    } else {
+        // No location - show all products with message
+        showLocationPrompt();
+        loadProducts(products);
+    }
+}
+
+// Update location display in UI
+function updateLocationDisplay(address, productsCount) {
+    const locationDisplay = document.querySelector('.dashboard-stats');
+    if (locationDisplay) {
+        const locationInfo = document.createElement('div');
+        locationInfo.className = 'stat-card location-stat';
+        locationInfo.innerHTML = `
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="stat-details">
+                <h3>Your Location</h3>
+                <p>${address.city}, ${address.state}</p>
+                <small>${productsCount} shops nearby</small>
+            </div>
+        `;
+        
+        // Insert at the beginning
+        if (!locationDisplay.querySelector('.location-stat')) {
+            locationDisplay.insertBefore(locationInfo, locationDisplay.firstChild);
+        }
+    }
+}
+
+// Show location prompt
+function showLocationPrompt() {
+    const grid = document.getElementById('productsGrid');
+    if (grid && grid.previousElementSibling) {
+        const prompt = document.createElement('div');
+        prompt.className = 'location-prompt';
+        prompt.innerHTML = `
+            <i class="fas fa-map-marker-alt"></i>
+            <p>Enable location to see shops near you</p>
+            <button onclick="enableLocation()" class="btn btn-primary">
+                <i class="fas fa-location-arrow"></i> Enable Location
+            </button>
+        `;
+        grid.parentElement.insertBefore(prompt, grid);
+    }
+}
+
+// Enable location button handler
+window.enableLocation = async function() {
+    const result = await window.locationService.requestLocationPermission();
+    if (result.success) {
+        showNotification('Location enabled! Showing nearby shops...', 'success');
+        loadLocationBasedProducts();
+        // Remove prompt
+        document.querySelector('.location-prompt')?.remove();
+    } else {
+        showNotification('Could not access location: ' + result.error, 'error');
+    }
+}
 
 // Event Listeners
 function setupEventListeners() {
@@ -143,7 +252,7 @@ function loadProducts(filteredProducts = products) {
             <div class="empty-state" style="grid-column: 1/-1;">
                 <i class="fas fa-search"></i>
                 <h3>No products found</h3>
-                <p>Try adjusting your filters</p>
+                <p>Try adjusting your filters or enable location</p>
             </div>
         `;
         return;
@@ -155,6 +264,10 @@ function loadProducts(filteredProducts = products) {
             <div class="product-info">
                 <div class="product-category">${product.category}</div>
                 <h3 class="product-name">${product.name}</h3>
+                <div class="shop-info">
+                    <i class="fas fa-store"></i> ${product.shop.name}
+                    ${product.distance ? `<span class="distance">• ${product.distance} km</span>` : ''}
+                </div>
                 <div class="product-price">₹${product.price.toLocaleString('en-IN')}</div>
                 <div class="product-stock">
                     <span class="stock-badge ${product.availability}">
